@@ -1,4 +1,4 @@
-name: Deploy ke EC2
+name: Deploy to EC2
 
 on:
   push:
@@ -10,10 +10,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
+    - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Deploy ke EC2
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run unit tests
+      run: npm test
+
+    - name: Deploy to EC2
       uses: appleboy/ssh-action@master
       with:
         host: 47.129.159.32
@@ -22,4 +33,5 @@ jobs:
         script: |
           cd ecommerce-uts
           git pull origin main
+          npm install
           pm2 restart all || pm2 start app.js --name ecommerce-app
