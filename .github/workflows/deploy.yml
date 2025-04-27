@@ -10,28 +10,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
+    - name: Copy files to EC2
+      uses: appleboy/scp-action@v0.1.4
       with:
-        node-version: '18'
+        host: 47.129.159.32         # <--- Ganti dengan IP PUBLIC EC2 kamu
+        username: ec2-user
+        key: ${{ secrets.EC2_SSH_KEY }}  # Ini SSH Private Key yang nanti kita simpan di Secrets
+        source: "."
+        target: "/home/ec2-user/ecommerce-uts"
 
-    - name: Install dependencies
-      run: npm install
-
-    - name: Run unit tests
-      run: npm test
-
-    - name: Deploy to EC2
-      uses: appleboy/ssh-action@master
+    - name: SSH and Restart app
+      uses: appleboy/ssh-action@v0.1.6
       with:
         host: 47.129.159.32
         username: ec2-user
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          cd ecommerce-uts
-          git pull origin main
+          cd /home/ec2-user/ecommerce-uts
           npm install
-          pm2 restart all || pm2 start app.js --name ecommerce-app
+          pm2 restart app.js || pm2 start app.js
+          pm2 save
