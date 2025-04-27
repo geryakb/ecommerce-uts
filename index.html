@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produk Kami</title>
+</head>
+<body>
+    <h1>Produk Kami</h1>
+    <div id="produk-container"></div>
+
+    <script>
+        fetch('http://47.129.159.32:3000/api/produk')
+            .then(response => response.json())
+            .then(data => {
+                const produkContainer = document.getElementById('produk-container');
+                let imagesHtml = '';
+
+                data.images.forEach(url => {
+                    imagesHtml += `<img src="${url}" width="200" style="margin:10px;">`;
+                });
+
+                produkContainer.innerHTML = `
+                    ${imagesHtml}
+                    <p>Harga: Rp ${data.price}</p>
+                `;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    </script>
+</body>
+</html>
